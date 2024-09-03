@@ -7,18 +7,19 @@ public class SecurityCamera : MonoBehaviour
     private Camera _camera;
     private AudioListener _audioListener;
 
-    public bool IsActive
-    {
-        set
-        {
-            _camera.enabled = value;
-            _audioListener.enabled = value;
-        }
-    }
-
     private void Awake()
     {
         _camera = GetComponent<Camera>();
         _audioListener = GetComponent<AudioListener>();
+    }
+
+    public void Activate() => SetActivity(true);
+
+    public void Deactivate() => SetActivity(false);
+
+    private void SetActivity(bool isActive)
+    {
+        _camera.enabled = isActive;
+        _audioListener.enabled = isActive;
     }
 }

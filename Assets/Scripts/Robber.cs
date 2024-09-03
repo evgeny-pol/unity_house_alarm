@@ -12,17 +12,19 @@ public class Robber : Person
     [SerializeField, Min(0.01f)] private float _waypointApproachDistance = 0.01f;
     [SerializeField, Min(0f)] private float _checkSurroundingsTime = 5f;
     [SerializeField, Min(0f)] private float _waitOutTime = 5f;
-    [SerializeField] private Transform _waypointsContainer;
+    [SerializeField] private Transform[] _waypoints;
 
-    private Transform[] _waypoints;
     private float _moveSpeed;
     private float _waypointApproachDistanceSqr;
     private Coroutine _currentStateCoroutine;
     private int _currentWaypointIndex;
     private Vector3? _targetPosition;
     private Quaternion? _targetRotation;
+    private int _detectorsCount;
     private Animator _animator;
     private Rigidbody _rigidbody;
+
+    private bool IsAlarmed => _detectorsCount > 0;
 
     private void Awake()
     {
@@ -33,7 +35,6 @@ public class Robber : Person
 
     private void Start()
     {
-        _waypoints = GameObjectUtils.GetChildren(_waypointsContainer);
         ChangeState(ExploreHouse());
     }
 
@@ -67,14 +68,22 @@ public class Robber : Person
 
     private void OnDrawGizmosSelected()
     {
-        if (_waypointsContainer)
-            Gizmos.DrawLineStrip(_waypointsContainer.Cast<Transform>().Select(t => t.position).ToArray(), false);
+        Gizmos.DrawLineStrip(_waypoints.Select(t => t.position).ToArray(), false);
     }
 
     public override void OnDetected()
     {
         base.OnDetected();
-        ChangeState(CheckSurroundings());
+        ++_detectorsCount;
+
+        if (_detectorsCount == 1)
+            ChangeState(LookAround());
+    }
+
+    public override void OnNotDetected()
+    {
+        base.OnNotDetected();
+        --_detectorsCount;
     }
 
     private void ChangeState(IEnumerator state)
@@ -96,8 +105,9 @@ public class Robber : Person
     {
         _animator.SetBool(AnimatorParams.IsAlarmed, false);
         _animator.SetBool(AnimatorParams.IsMoving, true);
+        bool isWorking = true;
 
-        while (enabled)
+        while (isWorking && enabled)
         {
             Transform currentWaypoint = _waypoints[_currentWaypointIndex];
             Vector3 currentWaypointPosition = currentWaypoint.position;
@@ -110,7 +120,8 @@ public class Robber : Person
                     _targetPosition = null;
                     _targetRotation = Quaternion.LookRotation(currentWaypoint.forward);
                     _animator.SetBool(AnimatorParams.IsMoving, false);
-                    yield break;
+                    isWorking = false;
+                    continue;
                 }
 
                 _currentWaypointIndex += (int)Mathf.Sign(targetWaypointIndex - _currentWaypointIndex);
@@ -122,7 +133,7 @@ public class Robber : Person
         }
     }
 
-    private IEnumerator CheckSurroundings()
+    private IEnumerator LookAround()
     {
         _animator.SetBool(AnimatorParams.IsAlarmed, true);
         _animator.SetBool(AnimatorParams.IsMoving, false);
@@ -130,7 +141,7 @@ public class Robber : Person
         _targetRotation = null;
         yield return new WaitForSeconds(_checkSurroundingsTime);
 
-        if (IsDetected)
+        if (IsAlarmed)
             ChangeState(RunAway());
         else
             ChangeState(ExploreHouse());
