@@ -220,6 +220,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7860927299607593336}
   - component: {fileID: 9052964887875786188}
+  - component: {fileID: 7939421501662988456}
   - component: {fileID: 4788751789901120703}
   m_Layer: 0
   m_Name: MovementDetector
@@ -256,6 +257,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 98aa1213b6fb6d746bbc804ddaefe0ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7939421501662988456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3311231401074618675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7d6cef110826f94e87185c7b9facbdc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _alarmLight: {fileID: 8044856971411889904}

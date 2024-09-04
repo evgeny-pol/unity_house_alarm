@@ -21,6 +21,8 @@ public class Robber : Person
     private Vector3? _targetPosition;
     private Quaternion? _targetRotation;
     private int _detectorsCount;
+    private WaitForSeconds _checkSurroundingsDelay;
+    private WaitForSeconds _waitOutDelay;
     private Animator _animator;
     private Rigidbody _rigidbody;
 
@@ -28,9 +30,11 @@ public class Robber : Person
 
     private void Awake()
     {
-        _waypointApproachDistanceSqr = _waypointApproachDistance * _waypointApproachDistance;
         _animator = GetComponent<Animator>();
         _rigidbody = GetComponent<Rigidbody>();
+        _checkSurroundingsDelay = new WaitForSeconds(_checkSurroundingsTime);
+        _waitOutDelay = new WaitForSeconds(_waitOutTime);
+        _waypointApproachDistanceSqr = _waypointApproachDistance * _waypointApproachDistance;
     }
 
     private void Start()
@@ -44,7 +48,7 @@ public class Robber : Person
 
         if (_targetPosition.HasValue)
         {
-            VectorUtils.SetHorizontalComponent(ref newVelocity, transform.forward * _moveSpeed);
+            newVelocity = VectorUtils.SetHorizontalComponent(newVelocity, transform.forward * _moveSpeed);
             Vector3 toTargetDirection = VectorUtils.HorizontalDirection(_rigidbody.position, _targetPosition.Value);
             Quaternion targetRotation = Quaternion.LookRotation(toTargetDirection);
             _rigidbody.rotation = Quaternion.RotateTowards(_rigidbody.rotation, targetRotation, _rotationSpeed * Time.fixedDeltaTime);
@@ -139,7 +143,7 @@ public class Robber : Person
         _animator.SetBool(AnimatorParams.IsMoving, false);
         _targetPosition = null;
         _targetRotation = null;
-        yield return new WaitForSeconds(_checkSurroundingsTime);
+        yield return _checkSurroundingsDelay;
 
         if (IsAlarmed)
             ChangeState(RunAway());
@@ -158,7 +162,7 @@ public class Robber : Person
 
     private IEnumerator WaitOut()
     {
-        yield return new WaitForSeconds(_waitOutTime);
+        yield return _waitOutDelay;
         ChangeState(ExploreHouse());
     }
 }

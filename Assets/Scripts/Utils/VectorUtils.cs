@@ -9,9 +9,8 @@ public static class VectorUtils
         return direction;
     }
 
-    public static void SetHorizontalComponent(ref Vector3 vector, Vector3 newHorizontalComponent)
+    public static Vector3 SetHorizontalComponent(Vector3 vector, Vector3 newHorizontalComponent)
     {
-        vector.x = newHorizontalComponent.x;
-        vector.z = newHorizontalComponent.z;
+        return new Vector3(newHorizontalComponent.x, vector.y, newHorizontalComponent.z);
     }
 }
